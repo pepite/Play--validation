@@ -6,7 +6,7 @@ h2. Example
 
 h3. View
 
-bc.#{extends 'main.html' /}
+@code@#{extends 'main.html' /}
 #{set title:'Home' /}
         
 <form action="@{submitStep}" method="post">
