@@ -7,7 +7,7 @@ h2. Example
 h3. View
 
 @code@
-==#{extends 'main.html' /}<br/>#{set title:'Home' /}<br/><br/>&lt;form action=&quot;@{submitStep}&quot; method=&quot;post&quot;&gt;<br/>    &lt;input type=&quot;text&quot; name=&quot;cart.fullName&quot; /&gt;#{validate name:'cart.fullName'/}<br/>&lt;/form&gt;<br/>==
+#{extends 'main.html' /}<br/>#{set title:'Home' /}<br/><br/>&lt;form action=&quot;@{submitStep}&quot; method=&quot;post&quot;&gt;<br/>    &lt;input type=&quot;text&quot; name=&quot;cart.fullName&quot; /&gt;#{validate name:'cart.fullName'/}<br/>&lt;/form&gt;<br/>
 
 The #{validate /} tag perform an ajax request and display a validation error in case of validation failure. The tag has the following attributes: name and class. Id will be added really soon. 
 
