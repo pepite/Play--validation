@@ -1,0 +1,19 @@
+*{  }*
+
+%{ n =  _name.replaceAll(/\./,"-") }%
+<span id="${n}-error" class="error ${_class}"></span>
+<script type="text/javascript">
+    // Get the parent form
+    var form = $("[name='${_name}']").parent("form");
+    var action = form.attr("action");
+    var validate = function(e) {
+        var v = $("input[name='${_name}']").val();
+        var validateAction = #{jsAction @Validation.validate(':formAction', ':name', ':value') /};
+        var name = "${_name}";
+        $.get(validateAction({formAction: action, value: v, name: name}), function(response) {
+            // Callback method
+            $('#${n}-error').text(response);
+        })
+    };
+    $("[name='${_name}']").blur(validate);
+</script>

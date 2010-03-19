@@ -1,0 +1,26 @@
+h1. Ajax validation for the Play! framework
+
+This module provides handy method to do validation.
+
+h2. Example
+
+h3. View
+
+bc.#{extends 'main.html' /}
+#{set title:'Home' /}
+        
+<form action="@{submitStep}" method="post">
+    <input type="text" name="cart.fullName" />#{validate name:'cart.fullName'/}
+</form>
+
+The #{validate /} tag perform an ajax request and display a validation error in case of validation failure. The tag has the following attributes: name and class. Id will be added really soon. 
+
+No extra or special annotation is required. This plugin uses the "standard" Play! framework validation annotation.
+
+Limitation: Cart.Item.name isn't currently supported.
+
+h3. Client validation
+
+Not yet implemented but coming soon. The idea is to publish the meta information about validation at render time (or maybe an extra request?).
+The client side uses the server side validation annotations.
+
