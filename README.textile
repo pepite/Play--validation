@@ -6,12 +6,12 @@ h2. Example
 
 h3. View
 
-==#{extends 'main.html' /}
+notextile.#{extends 'main.html' /}
 #{set title:'Home' /}
         
 <form action="@{submitStep}" method="post">
     <input type="text" name="cart.fullName" />#{validate name:'cart.fullName'/}
-</form>==
+</form>
 
 The #{validate /} tag perform an ajax request and display a validation error in case of validation failure. The tag has the following attributes: name and class. Id will be added really soon. 
 
