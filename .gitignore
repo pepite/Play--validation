@@ -1,2 +1,4 @@
 *iml
 build.properties
+samples-and-tests/sample-app/tmp
+samples-and-tests/sample-app/logs

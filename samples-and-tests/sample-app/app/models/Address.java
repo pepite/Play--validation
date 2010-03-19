@@ -1,3 +1,5 @@
+package models;
+
 import play.data.validation.Required;
 
 public class Address {

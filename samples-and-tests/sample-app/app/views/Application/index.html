@@ -1,7 +1,7 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
 
-<form action="@{submitStep}" method="post">
+<form action="@{submit}" method="post">
     <input type="text" name="address.fullName" />#{validate name:'address.fullName'/}
 </form>
 
