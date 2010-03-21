@@ -4,7 +4,7 @@
 <span id="${n}-error" class="error ${_class}"></span>
 <script type="text/javascript">
     // Get the parent form
-    var form = $("[name='${_name}']").parent("form");
+    var form = $("[name='${_name}']").parents("form");
     var action = form.attr("action");
     var validate = function(e) {
         var v = $("input[name='${_name}']").val();
