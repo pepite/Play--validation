@@ -1,7 +1,13 @@
 *{  }*
 
-%{ n =  _name.replaceAll(/\./,"-") }%
-<span id="${n}-error" class="error ${_class}"></span>
+%{ n =  _name.replaceAll(/\./,"-") 
+	def field = [:]
+	field['flash'] = play.mvc.Scope.Flash.current().get(_name)
+    field['flashArray'] = field['flash'] ? field['flash'].split(',') : []
+	field['error'] = play.data.validation.Validation.error(_name)
+	field['errorClass'] = field['error'] ? 'hasError' : ''
+}%
+<span id="${n}-error" class="error ${_class}">${field.error}</span>
 <script type="text/javascript">
     // Get the parent form
     var form = $("[name='${_name}']").parents("form");
