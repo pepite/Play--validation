@@ -29,7 +29,7 @@ public class Validation extends Controller {
     public static void validate(String formAction, String name, String value) throws Exception {
         final Http.Request request = new Http.Request();
         // Make sure we don't have the query string
-        if (formAction.indexOf("?") != 1) {
+        if (formAction.indexOf("?") != -1) {
             formAction = formAction.substring(0, formAction.indexOf("?"));    
         }
         request.path = formAction;
