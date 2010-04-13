@@ -18,7 +18,7 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
         var validateAction = #{jsAction @Validation.validate(':formAction', ':name', ':value') /};
         var name = "${_name}";
         var popup = jQuery('.popup.${n} ${_name}', jQuery("[name='${_name}']").parent()).css('opacity', 0);
-
+        $('table.popup.${n}').remove();
 
         $.get(validateAction({formAction: action, value: v, name: name}), function(response) {
             // Callback method
@@ -27,7 +27,7 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
             } else {
                 var opts = {
                     distances : [40,40,100],
-                    leftShifts : [60,110,110],
+                    rightShifts : [60,110,110],
                     bubbleTimes : [500,500,500],
                     hideDelays : [0,0,0],
                     bubbleWidths : [200,350,350],
@@ -36,9 +36,9 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
                     msiePop : true
                 };
                 if (response) {
-                    opts = jQuery.extend({            distances : [20],            leftShifts : [30],              bubbleTimes : [400],              hideDelays : [0],              bubbleWidths : [200],              bubbleImagesPath : "",              msieFix : true,              msiePop : true        }, opts || {});
+                    opts = jQuery.extend({            distances : [20],            rightShifts : [0],              bubbleTimes : [400],              hideDelays : [0],              bubbleWidths : [200],              bubbleImagesPath : "",              msieFix : true,              msiePop : true        }, opts || {});
                     function bubbleHtmlWrapper(bubbleHtml) {
-                        return '<table class="popup ${n}" style="opacity: 0; top: -60px; left: 33px; display: none;"><tr><td class="corner topleft"/><td class="top"/><td class="corner topright"/></tr><tr><td class="left"/><td class="bubble_content">' + "<b style='color:red'>" + response + "</b>" + '</td><td class="right"/></tr><tr><td class="corner bottomleft"/><td class="bottom"><img style="display:block;" width="30" height="29" alt="" /></td><td class="corner bottomright"/></tr></table>';
+                        return '<table class="popup ${n}" style="opacity: 0; top: -60px; right: 0px; display: none;"><tr><td class="corner topleft"/><td class="top"/><td class="corner topright"/></tr><tr><td class="left"/><td class="bubble_content">' + "<b style='color:red'>" + response + "</b>" + '</td><td class="right"/></tr><tr><td class="corner bottomleft"/><td class="bottom"><img style="display:block;" width="30" height="29" alt="" /></td><td class="corner bottomright"/></tr></table>';
                     }
 
                     var $bubbleHtml = $(bubbleHtmlWrapper(response));
@@ -61,7 +61,7 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
                     var distance = opts.distances;
                     var time = opts.bubbleTimes;
                     var popup = jQuery('.popup.${n}', jQuery("[name='${_name}']").parent()).css('opacity', 0);
-                    popup.css({top: -30, left: opts.leftShifts, display: 'block' })
+                    popup.css({top: -30, right: opts.rightShifts, display: 'block' })
                             .animate({ top: '-=' + distance + 'px',  opacity: 0.8}, time, 'swing', function() {
                     });
 

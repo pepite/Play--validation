@@ -62,7 +62,6 @@ public class Validation extends Controller {
 
         }
 
-        Logger.info("POS [" + pos + "]");
         if (pos != -1) {
             final Class type = actionMethod.getParameterTypes()[pos];
             Object validatedInstance = type.newInstance();
