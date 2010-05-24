@@ -29,17 +29,27 @@ public class Validation extends Controller {
 
     // TODO: manage bla.bli.property
     // TODO: Throws Exception?
-    public static void validate(String formAction, String name, String value) throws Exception {
+    public static void validate(String formAction, String name, String value, String method) throws Exception {
         final Http.Request request = new Http.Request();
         // Make sure we don't have the query string
-        if (formAction.indexOf("?") != -1) {
-            formAction = formAction.substring(0, formAction.indexOf("?"));
-        }
-        request.path = formAction;
-        request.method = "POST";
+        if (formAction.startsWith("@")) {
+            request.action = formAction.substring(1);
+        } else {
+            if (formAction.indexOf("?") != -1) {
+                formAction = formAction.substring(0, formAction.indexOf("?"));
+            }
 
-        // The route method modify the request object.
-        final Router.Route route = Router.route(request);
+            request.path = formAction;
+            // TODO: Be sure it is a post
+            if (method != null) {
+                request.method = method.toUpperCase();
+            } else {
+                request.method = "POST";
+            }
+            // The route method modify the request object.
+            final Router.Route route = Router.route(request);
+        }
+
         final Object[] ca = ActionInvoker.getActionMethod(request.action);
         final Method actionMethod = (Method) ca[1];
 
@@ -96,13 +106,23 @@ public class Validation extends Controller {
         renderText("");
     }
 
-    public static String getValidators(String formAction) throws Exception {
+    public static String getValidators(String formAction, String method) throws Exception {
         final Http.Request request = new Http.Request();
-        request.path = formAction;
-        request.method = "POST";
+        // Make sure we don't have the query string
+        if (formAction.startsWith("@")) {
+            request.action = formAction.substring(1);
+        } else {
+            if (formAction.indexOf("?") != -1) {
+                formAction = formAction.substring(0, formAction.indexOf("?"));
+            }
 
-        // The route method modify the request object.
-        Router.route(request);
+            request.path = formAction;
+            // TODO: Be sure it is a post
+            request.method = method.toUpperCase();
+            // The route method modify the request object.
+            Router.route(request);
+        }
+      
         final Object[] ca = ActionInvoker.getActionMethod(request.action);
         final Method actionMethod = (Method) ca[1];
 

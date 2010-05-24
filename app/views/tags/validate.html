@@ -10,18 +10,21 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
 <!-- <span id="${n}-error" class="bubble_html ${n} error ${_class}">${field.error}</span> -->
 <script type="text/javascript">
 
-    // Get the parent form
-    var form = $("[name='${_name}']").parents("form");
-    var action = form.attr("action");
     var validate = function(e) {
+        // Get the parent form
+        var form = $("[name='${_name}']").parents("form");
+        var action = form.attr("action");
+        var method = form.attr("method");
+
         var v = $("input[name='${_name}']").val();
-        var validateAction = #{jsAction @Validation.validate(':formAction', ':name', ':value') /};
+        var validateAction = #{jsAction @Validation.validate(':formAction', ':name', ':value', ':method') /};
         var name = "${_name}";
+
         var popup = jQuery('.popup.${n} ${_name}', jQuery("[name='${_name}']").parent()).css('opacity', 0);
         $("[name='${_name}']").wrapAll("<span class='coda_bubble' />");
         $('.${n}').remove();
 
-        $.get(validateAction({formAction: action, value: v, name: name}), function(response) {
+        $.get(validateAction({formAction: action, value: v, name: name, method: method}), function(response) {
             // Callback method
             var opts = {
                 distances : [40,40,100],
@@ -34,6 +37,9 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
                 msiePop : true
             };
             if (response) {
+                // Disable the form
+                var form = $("[name='${_name}']").parents("form");
+                $('form').submit(function() {return false;});
                 opts = jQuery.extend({            distances : [20],            rightShifts : [0],              hideDelays : [0],              bubbleWidths : [200],              bubbleImagesPath : "",              msieFix : true,              msiePop : true        }, opts || {});
                 function bubbleHtmlWrapper(bubbleHtml) {
                     // TODO: This is the default and should come from the configuration
@@ -67,6 +73,8 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
             else
             {
                 $('table.popup.${n}').remove();
+                $('form').submit(function() {return true;});
+
             }
 
 
