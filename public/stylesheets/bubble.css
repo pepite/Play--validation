@@ -7,6 +7,7 @@ table,caption,tbody,tfoot,thead,tr,th,td
 	font-weight: inherit;
 	margin: 0pt;
 	padding: 0pt;
+     border-collapse:collapse;
 }
 /* Bubble pop-up */
 .coda_bubble {
@@ -24,6 +25,7 @@ table,caption,tbody,tfoot,thead,tr,th,td
     border-collapse: collapse;
 }
 
+
 .popup td.corner {
     height: 15px;
     width: 19px;
@@ -36,8 +38,9 @@ table,caption,tbody,tfoot,thead,tr,th,td
 .popup td.right { background-image: url(../images/skins/classic/bubble-5.png); }
 .popup td.bottomleft { background-image: url(../images/skins/classic/bubble-6.png); }
 .popup td.bottom { background-image: url(../images/skins/classic/bubble-7.png); text-align: center;}
-.popup td.bottom img { display: block; margin: 0 auto; }
-.popup td.bottomright { background-image: url(../images/skins/classic/bubble-8.png); }
+.popup td.bottom img { display: block;margin: 0 auto; background-image: url(../images/skins/classic/bubble-tail2.png);}
+.popup td.bottomright {  background-image: url(../images/skins/classic/bubble-8.png); }
+
 
 .popup table.popup-contents {
     font-size: 12px;
@@ -45,7 +48,7 @@ table,caption,tbody,tfoot,thead,tr,th,td
     background-color: #fff;
     color: #666;
     font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", sans-serif;
-    
+    border-collapse:collapse;
 }
 
 table.popup-contents th {
@@ -56,7 +59,7 @@ table.popup-contents th {
 table.popup-contents td {
    text-align: left;
 }
-.popup td.bubble_content {
+.popup td.bubble_content {                                                                                                      
    background:white;
    font-family: "Trebuchet MS",  sans-serif;
    font-size:11px;
@@ -66,3 +69,7 @@ table.popup-contents td {
 	font-family: "verdana", arial, sans-serif;
 	font-size:12px;
 }
+
+
+
+

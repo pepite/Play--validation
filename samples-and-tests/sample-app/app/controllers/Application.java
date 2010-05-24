@@ -9,6 +9,10 @@ public class Application extends Controller {
         render();
     }
 
+    public static void index2() {
+        render();
+    }
+
     public static void submit(Address address) {
         index();
     }

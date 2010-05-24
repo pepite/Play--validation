@@ -1,6 +1,8 @@
 package controllers;
 
+import com.google.gson.Gson;
 import net.sf.oval.ConstraintViolation;
+import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
 import net.sf.oval.context.MethodParameterContext;
 import net.sf.oval.guard.Guard;
 import play.Logger;
@@ -17,6 +19,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +33,7 @@ public class Validation extends Controller {
         final Http.Request request = new Http.Request();
         // Make sure we don't have the query string
         if (formAction.indexOf("?") != -1) {
-            formAction = formAction.substring(0, formAction.indexOf("?"));    
+            formAction = formAction.substring(0, formAction.indexOf("?"));
         }
         request.path = formAction;
         request.method = "POST";
@@ -70,7 +73,6 @@ public class Validation extends Controller {
                 for (Annotation[] annotations : actionMethod.getParameterAnnotations()) {
                     if (annotations.length > 0) {
                         List<ConstraintViolation> violations = new Validator().validateAction(actionMethod);
-                        ArrayList<Error> errors = new ArrayList<Error>();
                         String[] paramNames = Java.parameterNames(actionMethod);
                         for (ConstraintViolation violation : violations) {
                             // TODO: Use a json array instead...
@@ -94,43 +96,65 @@ public class Validation extends Controller {
         renderText("");
     }
 
-    public static Map<String, List<play.data.validation.Validation.Validator>> getValidators(String formAction, String name) throws Exception {
+    public static String getValidators(String formAction) throws Exception {
         final Http.Request request = new Http.Request();
         request.path = formAction;
         request.method = "POST";
 
         // The route method modify the request object.
-        final Router.Route route = Router.route(request);
+        Router.route(request);
         final Object[] ca = ActionInvoker.getActionMethod(request.action);
         final Method actionMethod = (Method) ca[1];
 
         final String[] paramsNames = Java.parameterNames(actionMethod);
-        String className = name;
-        String f = name;
         // It should be only one parameters
-        int pos = -1;
+        Map<String, List<play.data.validation.Validation.Validator>> map = new HashMap<String, List<play.data.validation.Validation.Validator>>();
+        Map<String, Object> rootMap = new HashMap<String, Object>();
+
+        Map<String, List<String>> newMap = new HashMap<String, List<String>>();
+
         for (int i = 0; i < paramsNames.length; i++) {
-            String arg = paramsNames[i];
-            if (name.indexOf(".") > 0) {
-                className = name.substring(0, name.indexOf("."));
-            }
-            if (name.startsWith(arg + ".") && className.equals(arg)) {
-                pos = i;
-                f = name.substring(name.lastIndexOf(".") + 1);
-                break;
-            } else if (className.equals(arg)) {
-                pos = i;
-                f = className;
-                break;
+            final String arg = paramsNames[i];
+            final Class type = actionMethod.getParameterTypes()[i];
+            map.putAll(play.data.validation.Validation.getValidators(type, arg));
+
+            for (String key : map.keySet()) {
+                List<String> list = new ArrayList<String>();
+                for (play.data.validation.Validation.Validator validator : map.get(key)) {
+                    String value = validator.annotation.annotationType().getSimpleName().toLowerCase();
+                    list.add(value);
+                }
+                newMap.put(key, list);
             }
 
         }
+        // Same for the messages
+        // messages:{required:'Please enter your email address', email:'Please enter a valid email address'}
+        Map<String, List<String>> errorMap = new HashMap<String, List<String>>();
+        for (int i = 0; i < paramsNames.length; i++) {
+            final String arg = paramsNames[i];
+            final Class type = actionMethod.getParameterTypes()[i];
+            Map<String, List<play.data.validation.Validation.Validator>> validators = play.data.validation.Validation.getValidators(type, arg);
 
-        if (pos != -1) {
-            final Class type = actionMethod.getParameterTypes()[pos];
-            return play.data.validation.Validation.getValidators(type, f);
+
+            for (String key : validators.keySet()) {
+                List<String> errors = new ArrayList<String>();
+                Logger.info(" = " + key);
+                for (play.data.validation.Validation.Validator validator : map.get(key)) {
+                    errors.add(Messages.get(validator.annotation.annotationType().getDeclaredMethod("message").invoke(validator.annotation) + ""));
+                }
+                errorMap.put(key, errors);
+            }
+
+
         }
-        return null;
+
+        rootMap.put("rules", newMap);
+        rootMap.put("messages", errorMap);
+
+        Logger.info(" - " + new Gson().toJson(rootMap));
+
+        return new Gson().toJson(rootMap);
     }
 
     private static String message(String key, String message, String[] variables) {
