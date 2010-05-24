@@ -1,0 +1,15 @@
+#{extends 'main.html' /}
+#{set title:'Home' /}
+
+<form name="myForm" style="margin-top:200px" action="@{submit}" method="post">
+
+    #{validateAll name:'myForm', action:'/Application/submit' /}
+
+    <input type="text" name="address.fullName" /> <br/>
+
+    <input style="margin-top:200px" type="text" name="address.address1" />
+
+    <input type="submit"/>
+</form>
+
+ 
