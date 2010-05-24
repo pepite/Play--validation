@@ -38,8 +38,8 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
             };
             if (response) {
                 // Disable the form
-                var form = $("[name='${_name}']").parents("form");
-                $('form').submit(function() {return false;});
+                var submit = $("[name='${_name}']").parents("form").find("input[type='submit']");
+                submit.attr("disabled", "disabled");
                 opts = jQuery.extend({            distances : [20],            rightShifts : [0],              hideDelays : [0],              bubbleWidths : [200],              bubbleImagesPath : "",              msieFix : true,              msiePop : true        }, opts || {});
                 function bubbleHtmlWrapper(bubbleHtml) {
                     // TODO: This is the default and should come from the configuration
@@ -73,7 +73,8 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
             else
             {
                 $('table.popup.${n}').remove();
-                $('form').submit(function() {return true;});
+                var submit = $("[name='${_name}']").parents("form").find("input[type='submit']");
+                submit.removeAttr("disabled");
 
             }
 
