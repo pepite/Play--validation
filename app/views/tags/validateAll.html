@@ -12,6 +12,8 @@
         var config = new Object();
         config.rules = new Object();
         config.messages = new Object();
+        config.event = "blur";
+
         var $inputs = $("[name='${_name}'] input[type='text'],[name='${_name}'] textarea");
         $inputs.each( function(o) {
             var z = $(this).attr('name');
@@ -26,7 +28,7 @@
 
         config.showErrors = function(errorMap, errorList) {
 
-            $('.popup').remove();
+            //$('.popup').remove();
 
             function bubbleHtmlWrapper(opts, bubbleHtml) {
                 // TODO: This is the default and should come from the configuration
@@ -57,5 +59,12 @@
         var form = $("form[name='${_name}']");
   		var validator = $(form).validate(config);
 
-	});
+          $("[name='${_name}'] input[type='text'],[name='${_name}'] textarea").blur(function() {
+            if ($(this).valid()) {
+                // Remove the previous popup
+                $(this).parent().find("table.popup").remove();
+            }
+          });
+
+	  });
 </script>

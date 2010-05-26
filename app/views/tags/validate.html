@@ -10,7 +10,14 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
 <!-- <span id="${n}-error" class="bubble_html ${n} error ${_class}">${field.error}</span> -->
 <script type="text/javascript">
 
+    var submit = $("[name='${_name}']").parents("form").find("input[type='submit']");
+    submit.attr("disabled", "disabled");
+
+    // TODO: When a submit occurs, use the info from the server to display the errors
+    // Using the standard validation error template.
+
     var validate = function(e) {
+
         // Get the parent form
         var form = $("[name='${_name}']").parents("form");
         var action = form.attr("action");
@@ -34,7 +41,8 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
                 bubbleWidths : [200,350,350],
                 bubbleImagesPath : "/public/images/skins/classic",
                 msieFix : true,
-                msiePop : true
+                msiePop : true,
+                focusInvalid : true 
             };
             if (response) {
                 // Disable the form
@@ -51,7 +59,7 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
                 }
 
                 var $bubbleHtml = $(bubbleHtmlWrapper(response));
-                $bubbleHtml.addClass('${n}');
+                $bubbleHtml.addClass('${n}');                   
                 var $elem = $("[name='${_name}']");
                 $elem.unwrap();
                 $elem.wrapAll("<span class='coda_bubble'/>");
