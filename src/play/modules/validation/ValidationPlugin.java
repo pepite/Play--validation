@@ -10,5 +10,6 @@ public class ValidationPlugin extends PlayPlugin {
     @Override
     public void onRoutesLoaded() {
         Router.addRoute("GET", "/@validation/validate", "Validation.validate");
+        Router.addRoute("GET", "/@validation/validator", "Validation.getValidators");
     }
 }

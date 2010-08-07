@@ -5,14 +5,12 @@ import net.sf.oval.ConstraintViolation;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
 import net.sf.oval.context.MethodParameterContext;
 import net.sf.oval.guard.Guard;
+import org.apache.commons.lang.StringUtils;
 import play.Logger;
 import play.data.validation.Error;
 import play.exceptions.ActionNotFoundException;
 import play.i18n.Messages;
-import play.mvc.ActionInvoker;
-import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Router;
+import play.mvc.*;
 import play.utils.Java;
 
 import java.lang.annotation.Annotation;
@@ -31,6 +29,19 @@ public class Validation extends Controller {
     // TODO: Throws Exception?
     public static void validate(String formAction, String name, String value, String method) throws Exception {
         final Http.Request request = new Http.Request();
+        // If name is empty look into the params to see if we have a match
+        if (StringUtils.isEmpty(name)) {
+            Map<String, String[]> params = Scope.Params.current().all();
+            for (String key : params.keySet()) {
+                if (!key.equals("formAction") && !key.equals("method") && !key.equals("body")) {
+                    Logger.info("name " + key);
+                    name = key;
+                    value = params.get(key)[0];
+                    break;
+                }
+            }
+        }
+
         // Make sure we don't have the query string
         if (formAction.startsWith("@")) {
             request.action = formAction.substring(1);
@@ -58,8 +69,9 @@ public class Validation extends Controller {
         String f = name;
         // It should be only one parameters
         int pos = -1;
+        String arg = "";
         for (int i = 0; i < paramsNames.length; i++) {
-            String arg = paramsNames[i];
+            arg = paramsNames[i];
             if (name.indexOf(".") > 0) {
                 className = name.substring(0, name.indexOf("."));
             }
@@ -78,6 +90,7 @@ public class Validation extends Controller {
         if (pos != -1) {
             final Class type = actionMethod.getParameterTypes()[pos];
             Object validatedInstance = type.newInstance();
+
             if (f.equals(className)) {
                 validatedInstance = value;
                 for (Annotation[] annotations : actionMethod.getParameterAnnotations()) {
@@ -88,24 +101,25 @@ public class Validation extends Controller {
                             // TODO: Use a json array instead...
                             renderText(message(paramNames[((MethodParameterContext) violation.getContext()).getParameterIndex()], violation.getMessage(), violation.getMessageVariables() == null ? new String[0] : violation.getMessageVariables().values().toArray(new String[0])));
                         }
-                        break;
+
                     }
                 }
             } else {
                 type.getDeclaredField(f).set(validatedInstance, value);
-
                 final play.data.validation.Validation.ValidationResult result = validation.valid(validatedInstance);
                 final List<play.data.validation.Error> errors = validation.errorsMap().get("validatedInstance." + f);
                 if (errors != null && errors.size() > 0) {
                     // Use a json array instead...
-                    renderText(errors.get(0).message());
+                    renderText("false", errors.get(0).message());
                 }
             }
         }
 
-        renderText("");
+        renderText("true");
     }
 
+    // TODO: manage bla.bli.property
+    // TODO: Throws Exception?
     public static String getValidators(String formAction, String method) throws Exception {
         final Http.Request request = new Http.Request();
         // Make sure we don't have the query string
@@ -122,7 +136,7 @@ public class Validation extends Controller {
             // The route method modify the request object.
             Router.route(request);
         }
-      
+
         final Object[] ca = ActionInvoker.getActionMethod(request.action);
         final Method actionMethod = (Method) ca[1];
 
@@ -131,7 +145,7 @@ public class Validation extends Controller {
         Map<String, List<play.data.validation.Validation.Validator>> map = new HashMap<String, List<play.data.validation.Validation.Validator>>();
         Map<String, Object> rootMap = new HashMap<String, Object>();
 
-        Map<String, List<String>> newMap = new HashMap<String, List<String>>();
+        Map<String, Map<String, Object>> newMap = new HashMap<String, Map<String, Object>>();
 
         for (int i = 0; i < paramsNames.length; i++) {
             final String arg = paramsNames[i];
@@ -139,18 +153,38 @@ public class Validation extends Controller {
             map.putAll(play.data.validation.Validation.getValidators(type, arg));
 
             for (String key : map.keySet()) {
-                List<String> list = new ArrayList<String>();
+                Map<String, Object> values = new HashMap<String, Object>();
                 for (play.data.validation.Validation.Validator validator : map.get(key)) {
-                    String value = validator.annotation.annotationType().getSimpleName().toLowerCase();
-                    list.add(value);
+                    String name = validator.annotation.annotationType().getSimpleName().toLowerCase();
+                    Object value = Boolean.TRUE;
+                    try {
+                        value = validator.annotation.annotationType().getDeclaredMethod("value").invoke(validator.annotation).toString();
+                        // If we are on an object
+                        // This is for equals(). TODO: Check what can be done for others
+                        if (name.equals("equals")) {
+                            name = "equalTo";
+                            value = "[name='" + key.substring(0, key.lastIndexOf(".")) + "." + value + "']";
+                        } else if (name.equals("checkwith")) {
+                            // We use the remote 
+                            // remote: "/"
+                            name = "remote";
+                            // Get the name
+                            value = "/@validation/validate?formAction=" + formAction + "&method=" + method;
+
+                        }
+                    } catch (Exception e) {
+
+                    }
+                    values.put(name, value);
+
                 }
-                newMap.put(key, list);
+                newMap.put(key, values);
             }
 
         }
         // Same for the messages
         // messages:{required:'Please enter your email address', email:'Please enter a valid email address'}
-        Map<String, List<String>> errorMap = new HashMap<String, List<String>>();
+        Map<String, Map<String, String>> errorMap = new HashMap<String, Map<String, String>>();
         for (int i = 0; i < paramsNames.length; i++) {
             final String arg = paramsNames[i];
             final Class type = actionMethod.getParameterTypes()[i];
@@ -158,10 +192,17 @@ public class Validation extends Controller {
 
 
             for (String key : validators.keySet()) {
-                List<String> errors = new ArrayList<String>();
-                Logger.info(" = " + key);
+                Map<String, String> errors = new HashMap<String, String>();
                 for (play.data.validation.Validation.Validator validator : map.get(key)) {
-                    errors.add(Messages.get(validator.annotation.annotationType().getDeclaredMethod("message").invoke(validator.annotation) + ""));
+                    String name = validator.annotation.annotationType().getSimpleName().toLowerCase();
+                    if (name.equals("equals")) {
+                        name = "equalTo";
+                    } else if (name.equals("checkwith")) {
+                        // We use the remote
+                        // remote: "/"
+                        name = "remote";
+                    }
+                    errors.put(name, Messages.get(validator.annotation.annotationType().getDeclaredMethod("message").invoke(validator.annotation) + ""));
                 }
                 errorMap.put(key, errors);
             }

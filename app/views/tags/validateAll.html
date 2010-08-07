@@ -1,70 +1,97 @@
 <script type="text/javascript" src="/public/javascripts/jquery.validate.js"></script>
 
 
-
 <script type="text/javascript">
 
-  	$().ready(function(){
 
-        // Get the JSON TODO: method
-        var map = eval(%{out.println controllers.Validation.getValidators(_action, 'POST')}%) ;
-        // For each input
-        var config = new Object();
-        config.rules = new Object();
-        config.messages = new Object();
-        config.event = "blur";
+    $().ready(function() {
 
-        var $inputs = $("[name='${_name}'] input[type='text'],[name='${_name}'] textarea");
-        $inputs.each( function(o) {
-            var z = $(this).attr('name');
-            // TODO: FIXME, there can be more than a rule and message
-            if (map.rules[z]) {
-              config.rules[z] = map.rules[z][0];
-              config.messages[z] = map.messages[z][0];
-            }
-            $(this).wrapAll("<span class='coda_bubble ' />");
-        });
-        var opts = jQuery.extend({distances : [20],rightShifts : [0],hideDelays : [0],bubbleWidths : [200],bubbleImagesPath : "",              msieFix : true,              msiePop : true        }, opts || {});
-
-        config.showErrors = function(errorMap, errorList) {
-
-            //$('.popup').remove();
-
-            function bubbleHtmlWrapper(opts, bubbleHtml) {
-                // TODO: This is the default and should come from the configuration
-                 var template = '${_template}' || '#{doBody /}';
-                 if (template == '') {
-                     template = '<table class="popup" style="opacity: 0; right: 0px; display: none;"><tr><td class="corner topleft"/><td class="top"/><td class="corner topright"/></tr><tr><td class="left"/><td class="bubble_content"><b style="color:red">#error</b></td><td class="right"/></tr><tr><td class="corner bottomleft"/><td class="bottom"><img style="display:block;" width="30" height="29" src="/public/images/skins/classic/bubble-tail2.png"  alt="" /></td><td class="corner bottomright"/></tr></table>';
-                 }
-                 return template.replace(/#error/i, bubbleHtml);
-            }
-            for (i in errorList)  {
-
-                    var $bubbleHtml = $(bubbleHtmlWrapper(opts, errorList[i].message));
-                    var $elem = $(errorList[i].element);
-                    $elem.unwrap();
-                    $elem.wrapAll("<span class='coda_bubble' />");
-                    $elem.after($bubbleHtml);
-
-                    var distance = opts.distances ;
-                    var top = 0 - $bubbleHtml.height() - $elem.height() - 8;
-                    if (!opts.msiePop && $.browser.msie) {
-                        jQuery(popup).remove();
-                    }
-                    $bubbleHtml.css({top: top, right: opts.rightShifts, display: 'block',  opacity: 0 })
-                        .animate({ top: '+=' + distance + 'px',  opacity: 0.8}, 500, 'swing');
-            }
-            
-        };
         var form = $("form[name='${_name}']");
-  		var validator = $(form).validate(config);
 
-          $("[name='${_name}'] input[type='text'],[name='${_name}'] textarea").blur(function() {
-            if ($(this).valid()) {
-                // Remove the previous popup
-                $(this).parent().find("table.popup").remove();
+        var action = form.attr("action");
+        var method = form.attr("method");
+        var getValidatorsAction = #{jsAction @Validation.getValidators(':formAction', ':method') /};
+        $.get(getValidatorsAction({formAction: action, method: method}), function(response) {
+            if (response) {
+                var map = eval("(" + response + ")");
+
+                // For each input
+                var config = new Object();
+                config.rules = new Object();
+                config.messages = new Object();
+                config.onkeyup = false;
+
+                var $inputs = $("[name='${_name}'] input[type='text'],[name='${_name}'] input[type='password'],[name='${_name}'] textarea");
+                $inputs.each(function(o) {
+                    var z = $(this).attr('name');
+                    // TODO: FIXME, there can be more than a rule and message
+                    if (map.rules[z]) {
+                        config.rules[z] = map.rules[z];
+                        config.messages[z] = map.messages[z];
+                    }
+                    $(this).wrapAll("<span class='coda_bubble ' />");
+                });
+                var opts = jQuery.extend({distances : [20],rightShifts : [0],hideDelays : [0],bubbleWidths : [200],bubbleImagesPath : "",              msieFix : true,              msiePop : true        }, opts || {});
+                config.showErrors = function(errorMap, errorList) {
+                    function bubbleHtmlWrapper(opts, bubbleHtml) {
+                        // TODO: This is the default and should come from the configuration
+                        var template = '${_template}' || '#{doBody /}';
+                        if (template == '') {
+                            template = '<table class="popup" style="opacity: 0; right: 0px; display: none;"><tr><td class="corner topleft"/><td class="top"/><td class="corner topright"/></tr><tr><td class="left"/><td class="bubble_content"><b style="color:red">#error</b></td><td class="right"/></tr><tr><td class="corner bottomleft"/><td class="bottom"><img style="display:block;" width="30" height="29" src="/public/images/skins/classic/bubble-tail2.png"  alt="" /></td><td class="corner bottomright"/></tr></table>';
+                        }
+                        return template.replace(/#error/i, bubbleHtml);
+                    }
+
+                    for (i in errorList) {
+
+                        var $bubbleHtml = $(bubbleHtmlWrapper(opts, errorList[i].message));
+                        var $elem = $(errorList[i].element);
+                        if (!$bubbleHtml.is(":visible")) {
+                            
+                            $elem.parent().find(".popup").remove();
+                            $elem.after($bubbleHtml);
+
+                            var distance = opts.distances;
+                            var top = 0 - $bubbleHtml.height() - 8;
+
+                            // If popup was not yet there
+                            $bubbleHtml.css({top: top, right: opts.rightShifts, display: 'block',  opacity: 0.8 })
+                                    .animate({ top: '+=' + distance + 'px',  opacity: 0.8}, 500, 'swing');
+                            if (!$.browser.webkit) {
+                                $elem.focus();
+                            }
+                            
+                        }
+
+                    }
+                };
+
+                var validator = $(form).validate(config);
+
+                $("[name='${_name}'] input[type='text'],[name='${_name}'] input[type='password'],[name='${_name}'] textarea").focusout(function(event) {
+                    var valid = $(this).valid();
+                    if (valid) {
+                        // Remove the previous popup
+                        var x = $(this).parent().find("table.popup");
+                        if (x) {
+                            x.remove();
+                        }
+                    }
+                    event.stopImmediatePropagation();
+                });
+
+                $("[name='${_name}'] input[type='text'],[name='${_name}'] input[type='password'],[name='${_name}'] textarea").keyup(function(event) {
+                    var valid = $(this).valid();
+                    if (valid) {
+                        // Remove the previous popup
+                        var x = $(this).parent().find("table.popup");
+                        if (x) {
+                            x.remove();
+                        }
+                    }
+                     event.stopImmediatePropagation();
+                });
             }
-          });
-
-	  });
+        });
+    });
 </script>
