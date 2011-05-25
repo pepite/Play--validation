@@ -2,6 +2,7 @@ package models;
 
 import play.data.validation.Required;
 import play.data.validation.Email;
+import play.data.validation.Number;
     
 public class Address {
    
@@ -18,5 +19,7 @@ public class Address {
     public String postcode;
     @Required
     public String country;
+    @Number
+    public String number;
     
 }

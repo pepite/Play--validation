@@ -209,6 +209,8 @@ public class Validation extends Controller {
                         name = "range: [" + ((Range) validator.annotation).min() + ", " + ((Range) validator.annotation).max() + "]";
                     } else if (name.equals("required")) {
                         name = "required: true";
+                    } else if (name.equals("number")) {
+                        name = "number: true";
                     }
                     errors.put(name, Messages.get(validator.annotation.annotationType().getDeclaredMethod("message").invoke(validator.annotation) + ""));
                 }
