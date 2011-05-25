@@ -3,9 +3,11 @@
 
 <form style="margin-top:200px" action="@{submit}" method="post">
 
-    <input type="text" name="address.fullName" />#{validate name:'address.fullName'}<span class="error">#error</span>#{/validate} <br/>
+    <input type="text" name="address.fullName" />#{validate name:'address.fullName'/}
+    #{showError name:'address.fullName'}<div >#error#</div>{/showError} <br/>
 
-    <input style="margin-top:200px" type="text" name="address.address1" />#{validate name:'address.address1'/}
+    <input style="margin-top:200px" type="text" name="address.address1" />
+    #{validate name:'address.address1'/} #{showError name:'address.address1'}#error#{/showBubbleError}
 </form>
 
  

@@ -29,40 +29,22 @@
                         config.rules[z] = map.rules[z];
                         config.messages[z] = map.messages[z];
                     }
-                    $(this).wrapAll("<span class='coda_bubble ' />");
                 });
                 var opts = jQuery.extend({distances : [20],rightShifts : [0],hideDelays : [0],bubbleWidths : [200],bubbleImagesPath : "",              msieFix : true,              msiePop : true        }, opts || {});
                 config.showErrors = function(errorMap, errorList) {
-                    function bubbleHtmlWrapper(opts, bubbleHtml) {
-                        // TODO: This is the default and should come from the configuration
-                        var template = '${_template}' || '#{doBody /}';
-                        if (template == '') {
-                            template = '<table class="popup" style="opacity: 0; right: 0px; display: none;"><tr><td class="corner topleft"/><td class="top"/><td class="corner topright"/></tr><tr><td class="left"/><td class="bubble_content"><b style="color:red">#error</b></td><td class="right"/></tr><tr><td class="corner bottomleft"/><td class="bottom"><img style="display:block;" width="30" height="29" src="/public/images/skins/classic/bubble-tail2.png"  alt="" /></td><td class="corner bottomright"/></tr></table>';
-                        }
-                        return template.replace(/#error/i, bubbleHtml);
-                    }
-
                     for (i in errorList) {
 
-                        var $bubbleHtml = $(bubbleHtmlWrapper(opts, errorList[i].message));
+                        //var $bubbleHtml = $(bubbleHtmlWrapper(opts, errorList[i].message));
                         var $elem = $(errorList[i].element);
-                        if (!$bubbleHtml.is(":visible")) {
-                            
-                            $elem.parent().find(".popup").remove();
-                            $elem.after($bubbleHtml);
-
-                            var distance = opts.distances;
-                            var top = 0 - $bubbleHtml.height() - 8;
-
-                            // If popup was not yet there
-                            $bubbleHtml.css({top: top, right: opts.rightShifts, display: 'block',  opacity: 0.8 })
-                                    .animate({ top: '+=' + distance + 'px',  opacity: 0.8}, 500, 'swing');
-                            if (!$.browser.webkit) {
-                                $elem.focus();
+                        if ($elem.attr("name")) {
+                            // Get the matching showError element
+                            var showErrorAttr = $elem.attr("name").replace(/\./i, "-");
+                            var $showError = $("." + showErrorAttr + ".error");
+                            if ($showError) {
+                                $showError.html($showError.html().replace(/#error/i, errorList[i].message));
+                                $showError.show();
                             }
-                            
                         }
-
                     }
                 };
 
@@ -70,27 +52,21 @@
 
                 $("[name='${_name}'] input[type='text'],[name='${_name}'] input[type='password'],[name='${_name}'] textarea").focusout(function(event) {
 
-                   // if (valid) {
-                        // Remove the previous popup
-                        $(this).parent().find(".popup").remove();
-
-                    //}     
-                    var valid = $(this).valid();
-
-                    event.stopImmediatePropagation();
-                });
-
-                $("[name='${_name}'] input[type='text'],[name='${_name}'] input[type='password'],[name='${_name}'] textarea").keyup(function(event) {
-                    //var valid = $(this).valid();
-                    //if (valid) {
-                        // Remove the previous popup
-                        $(this).parent().find(".popup").remove();
-                       
-                    //}
+                    var showErrorAttr = $(this).attr("name").replace(/\./i, "-");
+                    var $showError = $("." + showErrorAttr + ".error");
+                    $showError.hide();
                     var valid = $(this).valid();
                     event.stopImmediatePropagation();
                 });
-                
+
+//                $("[name='${_name}'] input[type='text'],[name='${_name}'] input[type='password'],[name='${_name}'] textarea").keyup(function(event) {
+//                    var showErrorAttr = $(this).attr("name").replace(/\./i, "-");
+//                    var $showError = $("." + showErrorAttr + ".error");
+//                    $showError.hide();
+//                    var valid = $(this).valid();
+//                    event.stopImmediatePropagation();
+//                });
+
             }
         });
     });

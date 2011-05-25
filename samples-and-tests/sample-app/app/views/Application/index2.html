@@ -5,11 +5,41 @@
 
     #{validateAll name:'myForm' /}
 
-    <input type="text" name="address.fullName" /> <br/>
 
-    <input style="margin-top:200px" type="text" name="address.address1" />
+    <input type="text" name="address.fullName"/>#{showError name:'address.fullName'}#error#{/showError} <br/>
+    <script type="text/javascript">
+        $("form[name='myForm']").submit(function() {
+            if (!$(this).valid()) {
+                $("input[type='text']").each(function() {
+                    if (!$(this).valid()) {
+                        $(this).css({"background-color":"#fea"})
 
-    <input style="margin-top:200px" type="text" name="address.city" />
+                    } else {
+                        $(this).css({"background-color":"white"});
+
+                    }
+                });
+
+            } else {
+                  $("input[type='text']").css({"background-color":"white"});
+            }
+            return false;
+        });
+        $("input[type='text']").live("blur", function() {
+            if (!$(this).valid()) {
+                $(this).css({"background-color":"#fea"});
+            } else {
+                $(this).css({"background-color":"white"});
+            }
+        });
+
+    </script>
+
+    <input style="margin-top:200px" type="text" name="address.address1"/>#{showError
+    name:'address.address1'}#error#{/showError}
+
+    <input style="margin-top:200px" type="text" name="address.city"/> #{showError
+    name:'address.city'}#error#{/showError}
 
     <input type="submit"/>
 </form>

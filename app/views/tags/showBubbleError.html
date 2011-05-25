@@ -1,0 +1,50 @@
+%{ n =  _name.replaceAll(/\./,"-") }%
+
+    <script type="text/javascript">
+
+        // Remove the previous one
+        $(".popup.${n} ").remove();
+                 var opts = {
+                        distances : [40,40,100],
+                        rightShifts : [60,110,110],
+                        bubbleTimes : [500,500,500],
+                        hideDelays : [0,0,0],
+                        bubbleWidths : [200,350,350],
+                        bubbleImagesPath : "/public/images/skins/classic",
+                        msieFix : true,
+                        msiePop : true,
+                        focusInvalid : true
+                    };
+        var response = $("span.error.${n}").text();
+
+        var popup = jQuery('.popup.${n} ${_name}', jQuery("[name='${_name}']").parent()).css('opacity', 0);
+        opts = jQuery.extend({            distances : [20],            rightShifts : [0],              hideDelays : [0],              bubbleWidths : [200],              bubbleImagesPath : "",              msieFix : true,              msiePop : true        }, opts || {});
+        function bubbleHtmlWrapper(bubbleHtml) {
+            var template = '${_template}' ;
+            if (template == '') {
+                template = '<span style="display: none; " class="${n} error ${_errorClass}"><table class="popup ${n}" style="display:block; top: -100px;right: 0px; opacity: 0.8 "><tr><td class="corner topleft"/><td class="top"/><td class="corner topright"/></tr><tr><td class="left"/><td class="bubble_content"><b style="color:red">#{doBody /}</b></td><td class="right"/></tr><tr><td class="corner bottomleft"/><td class="bottom"><img style="display:block;" width="30" height="29" src="/public/images/skins/classic/bubble-tail2.png"  alt="" /></td><td class="corner bottomright"/></tr></table></span>';
+            }
+            return template;
+        }
+
+        var $bubbleHtml = $(bubbleHtmlWrapper(response));
+        $bubbleHtml.addClass('${n}');
+        var $elem = $("[name='${_name}']");
+        //$elem.unwrap();
+        $elem.wrapAll("<span class='coda_bubble'/>");
+        $elem.before($bubbleHtml);
+
+//        var distance = opts.distances;
+//        var time = 400;
+//        var top = 0 - $bubbleHtml.height() - opts.distances[0];
+        //var popup = jQuery('.popup.${n}', jQuery("[name='${_name}']").parent()).hide();//css('opacity', 0);
+        //                popup.css({top: top, right: opts.rightShifts, display: 'block' })
+        //                        .animate({ top: '+=' + distance + 'px',  opacity: 0.8}, time, 'swing', function() {
+        //                        });
+
+        if (!opts.msiePop && $.browser.msie) {
+            jQuery(popup).remove();
+        }
+
+    </script>
+

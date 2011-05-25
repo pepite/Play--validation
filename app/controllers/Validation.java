@@ -7,7 +7,7 @@ import net.sf.oval.context.MethodParameterContext;
 import net.sf.oval.guard.Guard;
 import org.apache.commons.lang.StringUtils;
 import play.Logger;
-import play.data.validation.Error;
+import play.data.validation.*;
 import play.exceptions.ActionNotFoundException;
 import play.i18n.Messages;
 import play.mvc.*;
@@ -110,7 +110,7 @@ public class Validation extends Controller {
                 final List<play.data.validation.Error> errors = validation.errorsMap().get("validatedInstance." + f);
                 if (errors != null && errors.size() > 0) {
                     // Use a json array instead...
-                    renderText("false", errors.get(0).message());
+                    renderText(errors.get(0).message());
                 }
             }
         }
@@ -201,6 +201,14 @@ public class Validation extends Controller {
                         // We use the remote
                         // remote: "/"
                         name = "remote";
+                    } else if (name.equals("minsize")) {
+                        name = "min: " + ((MinSize) validator.annotation).value();
+                    } else if (name.equals("maxsize")) {
+                        name = "max: " + ((MaxSize) validator.annotation).value();
+                    } else if (name.equals("range")) {
+                        name = "range: [" + ((Range) validator.annotation).min() + ", " + ((Range) validator.annotation).max() + "]";
+                    } else if (name.equals("required")) {
+                        name = "required: true";
                     }
                     errors.put(name, Messages.get(validator.annotation.annotationType().getDeclaredMethod("message").invoke(validator.annotation) + ""));
                 }
@@ -213,7 +221,7 @@ public class Validation extends Controller {
         rootMap.put("rules", newMap);
         rootMap.put("messages", errorMap);
 
-        Logger.info(" - " + new Gson().toJson(rootMap));
+        //Logger.info(" - " + new Gson().toJson(rootMap));
 
         return new Gson().toJson(rootMap);
     }

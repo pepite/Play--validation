@@ -27,69 +27,24 @@ field['errorClass'] = field['error'] ? 'hasError' : ''
         var validateAction = #{jsAction @Validation.validate(':formAction', ':name', ':value', ':method') /};
         var name = "${_name}";
 
-        var popup = jQuery('.popup.${n} ${_name}', jQuery("[name='${_name}']").parent()).css('opacity', 0);
-        $("[name='${_name}']").wrapAll("<span class='coda_bubble' />");
-        $('.${n}').remove();
-
         $.get(validateAction({formAction: action, value: v, name: name, method: method}), function(response) {
             // Callback method
-            var opts = {
-                distances : [40,40,100],
-                rightShifts : [60,110,110],
-                bubbleTimes : [500,500,500],
-                hideDelays : [0,0,0],
-                bubbleWidths : [200,350,350],
-                bubbleImagesPath : "/public/images/skins/classic",
-                msieFix : true,
-                msiePop : true,
-                focusInvalid : true 
-            };
-            if (response) {
+
+            if (response && response != 'true') {
                 // Disable the form
                 var submit = $("[name='${_name}']").parents("form").find("input[type='submit']");
                 submit.attr("disabled", "disabled");
-                opts = jQuery.extend({            distances : [20],            rightShifts : [0],              hideDelays : [0],              bubbleWidths : [200],              bubbleImagesPath : "",              msieFix : true,              msiePop : true        }, opts || {});
-                function bubbleHtmlWrapper(bubbleHtml) {
-                    // TODO: This is the default and should come from the configuration
-                    var template = '${_template}' || '#{doBody /}';
-                    if (template == '') {
-                        template = '<table class="popup ${n}" style="opacity: 0; right: 0px; display: none;"><tr><td class="corner topleft"/><td class="top"/><td class="corner topright"/></tr><tr><td class="left"/><td class="bubble_content"><b style="color:red">#error</b></td><td class="right"/></tr><tr><td class="corner bottomleft"/><td class="bottom"><img style="display:block;" width="30" height="29" src="/public/images/skins/classic/bubble-tail2.png"  alt="" /></td><td class="corner bottomright"/></tr></table>';
-                    }
-                    return template.replace(/#error/i, response);
-                }
-
-                var $bubbleHtml = $(bubbleHtmlWrapper(response));
-                $bubbleHtml.addClass('${n}');                   
-                var $elem = $("[name='${_name}']");
-                $elem.unwrap();
-                $elem.wrapAll("<span class='coda_bubble'/>");
-                $elem.after($bubbleHtml);
-
-                var distance = opts.distances;
-                var time = 400;
-                var top = 0 - $bubbleHtml.height() - opts.distances[0];
-                var popup = jQuery('.popup.${n}', jQuery("[name='${_name}']").parent()).css('opacity', 0);
-                popup.css({top: top, right: opts.rightShifts, display: 'block' })
-                        .animate({ top: '+=' + distance + 'px',  opacity: 0.8}, time, 'swing', function() {
-                });
-
-                if (!opts.msiePop && $.browser.msie) {
-                    jQuery(popup).remove();
-                }
+                $(".${n}.error").html($(".${n}.error").html().replace(/#error/i, response));
+                $(".${n}.error").show();
 
             }
-            else
-            {
-                $('table.popup.${n}').remove();
-                var submit = $("[name='${_name}']").parents("form").find("input[type='submit']");
-                submit.removeAttr("disabled");
+            else {
+                $(".${n}.error").hide();
 
             }
 
 
-        }
-                )
-                ;
+        });
     }
             ;
     $("[name='${_name}']").blur(validate);

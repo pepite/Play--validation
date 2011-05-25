@@ -5,11 +5,11 @@ import play.data.validation.Email;
     
 public class Address {
    
-    @Required( message =    "Please enter your name!")
+    @Required( message =  "Please enter your name!")
     public String fullName;
     @Email
     public String email;
-    @Required
+    @Required ( message =  "Please enter your address!")
     public String address1;
     public String address2;
     @Required
