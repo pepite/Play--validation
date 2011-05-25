@@ -69,28 +69,28 @@
                 var validator = $(form).validate(config);
 
                 $("[name='${_name}'] input[type='text'],[name='${_name}'] input[type='password'],[name='${_name}'] textarea").focusout(function(event) {
-                    var valid = $(this).valid();
-                    if (valid) {
+
+                   // if (valid) {
                         // Remove the previous popup
-                        var x = $(this).parent().find("table.popup");
-                        if (x) {
-                            x.remove();
-                        }
-                    }
+                        $(this).parent().find(".popup").remove();
+
+                    //}     
+                    var valid = $(this).valid();
+
                     event.stopImmediatePropagation();
                 });
 
                 $("[name='${_name}'] input[type='text'],[name='${_name}'] input[type='password'],[name='${_name}'] textarea").keyup(function(event) {
-                    var valid = $(this).valid();
-                    if (valid) {
+                    //var valid = $(this).valid();
+                    //if (valid) {
                         // Remove the previous popup
-                        var x = $(this).parent().find("table.popup");
-                        if (x) {
-                            x.remove();
-                        }
-                    }
-                     event.stopImmediatePropagation();
+                        $(this).parent().find(".popup").remove();
+                       
+                    //}
+                    var valid = $(this).valid();
+                    event.stopImmediatePropagation();
                 });
+                
             }
         });
     });
