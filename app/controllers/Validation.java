@@ -170,7 +170,28 @@ public class Validation extends Controller {
                             name = "remote";
                             // Get the name
                             value = "/@validation/validate?formAction=" + formAction + "&method=" + method;
-
+                        } else if (name.equals("minsize")) {
+                            name = "min";
+                            value = ((MinSize) validator.annotation).value();
+                        } else if (name.equals("maxsize")) {
+                            value = ((MaxSize) validator.annotation).value();
+                        } else if (name.equals("range")) {
+                            value = "[" + ((Range) validator.annotation).min() + ", " + ((Range) validator.annotation).max() + "]";
+                        } else if (name.equals("required")) {
+                            value = "true";
+                        } else if (name.equals("number")) {
+                            // TODO: add support for float, digit, currency, etc by adding format
+                            name = "digits";
+                            value = "true";
+                        } else if (name.equals("url")) {
+                            value = "true";
+                        } else if (name.equals("date")) {
+                            // TODO: add format to the date on the js side
+                            String format = DateCheck.getFormatForLangs(((Date) validator.annotation).lang(), ((Date) validator.annotation).value());
+                            name = "date";
+                            value = "true";
+                        } else if (name.equals("match")) {
+                            value = ((Match) validator.annotation).value();
                         }
                     } catch (Exception e) {
 
@@ -202,17 +223,15 @@ public class Validation extends Controller {
                         // remote: "/"
                         name = "remote";
                     } else if (name.equals("minsize")) {
-                        name = "min: " + ((MinSize) validator.annotation).value();
+                        name = "min";
                     } else if (name.equals("maxsize")) {
-                        name = "max: " + ((MaxSize) validator.annotation).value();
-                    } else if (name.equals("range")) {
-                        name = "range: [" + ((Range) validator.annotation).min() + ", " + ((Range) validator.annotation).max() + "]";
-                    } else if (name.equals("required")) {
-                        name = "required: true";
+                        name = "max";
                     } else if (name.equals("number")) {
-                        name = "number: true";
+                        // TODO: add support for float, digit, currency, etc by adding format
+                        name = "digits";
                     }
-                    errors.put(name, Messages.get(validator.annotation.annotationType().getDeclaredMethod("message").invoke(validator.annotation) + ""));
+                    Logger.info(validator.annotation.annotationType().getDeclaredMethod("message").invoke(validator.annotation).toString());
+                    errors.put(name, Messages.get(validator.annotation.annotationType().getDeclaredMethod("message").invoke(validator.annotation).toString()));
                 }
                 errorMap.put(key, errors);
             }
@@ -223,7 +242,7 @@ public class Validation extends Controller {
         rootMap.put("rules", newMap);
         rootMap.put("messages", errorMap);
 
-        //Logger.info(" - " + new Gson().toJson(rootMap));
+        Logger.info(" - " + new Gson().toJson(rootMap));
 
         return new Gson().toJson(rootMap);
     }

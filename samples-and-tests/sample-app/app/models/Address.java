@@ -3,7 +3,8 @@ package models;
 import play.data.validation.Required;
 import play.data.validation.Email;
 import play.data.validation.Number;
-    
+import play.data.validation.Match;
+
 public class Address {
    
     @Required( message =  "Please enter your name!")
@@ -16,10 +17,11 @@ public class Address {
     @Required
     public String city;
     @Required
+    @Match(value = "^\\d{4}$", message = "Invalid postcode")
     public String postcode;
     @Required
     public String country;
-    @Number
+    @Number @Required
     public String number;
     
 }

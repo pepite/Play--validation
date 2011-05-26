@@ -40,10 +40,12 @@
                             // Get the matching showError element
                             var showErrorAttr = $elem.attr("name").replace(/\./i, "-");
                             var $showError = $("." + showErrorAttr + ".error");
-                            if ($showError) {
-                                $showError.html($showError.html().replace(/#error/i, errorList[i].message));
-                                $showError.show();
+                            if ($("span." + showErrorAttr + ".error-content").length > 0 ) {
+                              $("span." + showErrorAttr + ".error-content").text(errorList[i].message);
+                            } else {
+                                $showError.html($showError.html().replace(/#error/i, "<span class='" + showErrorAttr + " error-content'>" + errorList[i].message + "</span>"));
                             }
+                            $showError.fadeIn(200);
                         }
                     }
                 };

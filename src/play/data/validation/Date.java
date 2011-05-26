@@ -15,12 +15,12 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
-@Constraint(checkWith = NumberCheck.class)
-public @interface Number {
+@Constraint(checkWith = DateCheck.class)
+public @interface Date {
 
+    String message() default DateCheck.mes;
     String[] value() default {""};
     String[] lang() default {"*"};
-    String message() default NumberCheck.mes;
 
 }
 

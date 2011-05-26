@@ -1,33 +1,49 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
 
-<form name="myForm" style="margin-top:200px" action="@{submit}" method="post">
+        <style type="text/css">
+            .error-content {
+                color: #ff5f5f;
+            }
+        </style>
+
+        #{ifErrors}
+   <h1>Oops…</h1>
+
+   #{errors}
+       <li>${error}</li>
+   #{/errors}
+#{/ifErrors}
+<form name="myForm" style="margin-top:100px" action="@{submit}" method="post">
 
     #{validateAll name:'myForm' /}
 
 
-    <input type="text" name="address.fullName"/>#{showError name:'address.fullName'}#error#{/showError} <br/>
+    <div style="font-weight: bold; font-size:15pt; font-family: 'Trebuchet MS'; padding-left:5px;margin-top:50px; width:100px; ">Fullname: </div> <input style="width:200px; margin-top:10px" type="text" name="address.fullName"/>#{showError name:'address.fullName'}#error#{/showError} <br/>
 
 
-    <input style="margin-top:200px" type="text" name="address.address1"/>#{showError
+    <div style="font-weight: bold;padding-left:5px;font-size:15pt; font-family: 'Trebuchet MS';margin-top:50px; width:100px; ">Address1: </div> <input style="width:200px; margin-top:10px" type="text" name="address.address1"/>#{showError
     name:'address.address1'}#error#{/showError}
 
     <br/>
-    <input style="margin-top:200px" type="text" name="address.city"/> #{showError
-    name:'address.city'}#error#{/showError}
+    <div style="font-weight: bold;padding-left:5px;font-size:15pt; font-family: 'Trebuchet MS';margin-top:50px;width:100px; ">City: </div> <input style="width:200px; margin-top:10px" type="text" name="address.city"/> #{showBubbleError
+    name:'address.city'}#error#{/showBubbleError}
 
     <br/>
-    <input style="margin-top:200px" type="text" name="address.number"/> #{showError
+    <div style="font-weight: bold;padding-left:5px;font-size:15pt; font-family: 'Trebuchet MS';margin-top:50px;width:100px; ">Number: </div> <input style="width:200px; margin-top:10px" type="text" name="address.number"/> #{showError
     name:'address.number'}#error#{/showError}
 
-
+    <br/>
+    <div style="font-weight: bold;padding-left:5px;font-size:15pt; font-family: 'Trebuchet MS';margin-top:50px;width:100px; ">Postcode: </div> <input style="width:200px; margin-top: 10px;" type="text" name="address.postcode"/> #{showError
+    name:'address.postcode'}#error#{/showError}
+       <br/>
     <script type="text/javascript">
         $().ready(function() {
             $("form[name='myForm']").submit(function() {
                 if (!$(this).valid()) {
                     $("input[type='text']").each(function() {
                         if (!$(this).valid()) {
-                            $(this).css({"background-color":"#fea"})
+                            $(this).css({"background-color":"#ffa"})
 
                         } else {
                             $(this).css({"background-color":"white"});
@@ -42,7 +58,7 @@
             });
             $("input[type='text']").live("blur", function() {
                 if (!$(this).valid()) {
-                    $(this).css({"background-color":"#fea"});
+                    $(this).css({"background-color":"#ffa"});
                 } else {
                     $(this).css({"background-color":"white"});
                 }

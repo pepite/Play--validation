@@ -270,7 +270,8 @@ $.extend($.validator, {
 		rangelength: $.validator.format("Please enter a value between {0} and {1} characters long."),
 		range: $.validator.format("Please enter a value between {0} and {1}."),
 		max: $.validator.format("Please enter a value less than or equal to {0}."),
-		min: $.validator.format("Please enter a value greater than or equal to {0}.")
+		min: $.validator.format("Please enter a value greater than or equal to {0}."),
+        match:  $.validator.format("Please enter a value that match {0}.")
 	},
 	
 	autoCreateRanges: false,
@@ -530,13 +531,14 @@ $.extend($.validator, {
 			var meta = this.settings.meta
 				? $(element).metadata()[this.settings.meta]
 				: $(element).metadata();
-			
+
 			return meta && meta.messages && meta.messages[method];
 		},
 		
 		// return the custom message for the given element name and validation method
 		customMessage: function( name, method ) {
 			var m = this.settings.messages[name];
+
 			return m && (m.constructor == String
 				? m
 				: m[method]);
@@ -1009,8 +1011,12 @@ $.extend($.validator, {
 		},
         
 		// http://docs.jquery.com/Plugins/Validation/Methods/date
-		date: function(value, element) {
+		date: function(value, element, param) {
 			return this.optional(element) || !/Invalid|NaN/.test(new Date(value));
+		},
+
+        range: function( value, element, param ) {
+			return this.optional(element) || ( value >= param[0] && value <= param[1] );
 		},
 	
 		// http://docs.jquery.com/Plugins/Validation/Methods/dateISO
@@ -1021,6 +1027,10 @@ $.extend($.validator, {
 		// http://docs.jquery.com/Plugins/Validation/Methods/number
 		number: function(value, element) {
 			return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value);
+		},
+
+        match: function(value, element, param) {
+			return this.optional(element) || new RegExp(param).test(value);
 		},
 	
 		// http://docs.jquery.com/Plugins/Validation/Methods/digits
@@ -1100,6 +1110,8 @@ $.format = $.validator.format;
 		return ajax.apply(this, arguments);
 	};
 })(jQuery);
+
+
 
 // provides cross-browser focusin and focusout events
 // IE has native support, in other browsers, use event caputuring (neither bubbles)
