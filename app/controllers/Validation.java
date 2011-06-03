@@ -14,6 +14,7 @@ import play.mvc.*;
 import play.utils.Java;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ import play.data.validation.Error;
 
 public class Validation extends Controller {
 
+
+
     // TODO: manage bla.bli.property
     // TODO: Throws Exception?
     public static void validate(String formAction, String name, String value, String method) throws Exception {
@@ -34,7 +37,6 @@ public class Validation extends Controller {
             Map<String, String[]> params = Scope.Params.current().all();
             for (String key : params.keySet()) {
                 if (!key.equals("formAction") && !key.equals("method") && !key.equals("body")) {
-                    Logger.info("name " + key);
                     name = key;
                     value = params.get(key)[0];
                     break;
@@ -106,7 +108,7 @@ public class Validation extends Controller {
                 }
             } else {
                 type.getDeclaredField(f).set(validatedInstance, value);
-                final play.data.validation.Validation.ValidationResult result = validation.valid(validatedInstance);
+                //final play.data.validation.Validation.ValidationResult result = validation.valid(validatedInstance);
                 final List<play.data.validation.Error> errors = validation.errorsMap().get("validatedInstance." + f);
                 if (errors != null && errors.size() > 0) {
                     // Use a json array instead...
@@ -187,14 +189,13 @@ public class Validation extends Controller {
                             value = "true";
                         } else if (name.equals("date")) {
                             // TODO: add format to the date on the js side
-                            String format = DateCheck.getFormatForLangs(((Date) validator.annotation).lang(), ((Date) validator.annotation).value());
+                            String format = ValidDateCheck.getFormatForLangs(((ValidDate) validator.annotation).lang(), ((ValidDate) validator.annotation).value());
                             name = "date";
                             value = "true";
                         } else if (name.equals("match")) {
                             value = ((Match) validator.annotation).value();
                         }
                     } catch (Exception e) {
-
                     }
                     values.put(name, value);
 
@@ -230,7 +231,6 @@ public class Validation extends Controller {
                         // TODO: add support for float, digit, currency, etc by adding format
                         name = "digits";
                     }
-                    Logger.info(validator.annotation.annotationType().getDeclaredMethod("message").invoke(validator.annotation).toString());
                     errors.put(name, Messages.get(validator.annotation.annotationType().getDeclaredMethod("message").invoke(validator.annotation).toString()));
                 }
                 errorMap.put(key, errors);
@@ -241,8 +241,6 @@ public class Validation extends Controller {
 
         rootMap.put("rules", newMap);
         rootMap.put("messages", errorMap);
-
-        Logger.info(" - " + new Gson().toJson(rootMap));
 
         return new Gson().toJson(rootMap);
     }
@@ -275,5 +273,82 @@ public class Validation extends Controller {
         }
     }
 
+
+
+ // ~~~~ Integration helper
+    public static Map<String, List< play.data.validation.Validation.Validator>> getValidators(Class<?> clazz, String name) {
+        Map<String, List< play.data.validation.Validation.Validator>> result = new HashMap<String, List< play.data.validation.Validation.Validator>>();
+        searchValidator(clazz, name, result);
+        return result;
+    }
+
+    public static List< play.data.validation.Validation.Validator> getValidators(Class<?> clazz, String property, String name) {
+        try {
+            List< play.data.validation.Validation.Validator> validators = new ArrayList< play.data.validation.Validation.Validator>();
+            while (!clazz.equals(Object.class)) {
+                try {
+                    Field field = clazz.getDeclaredField(property);
+                    for (Annotation annotation : field.getDeclaredAnnotations()) {
+                        if (annotation.annotationType().getName().startsWith("play.data.validation")) {
+                            play.data.validation.Validation.Validator validator = new play.data.validation.Validation.Validator(annotation);
+                            validators.add(validator);
+                            if (annotation.annotationType().equals(Equals.class)) {
+                                validator.params.put("equalsTo", name + "." + ((Equals) annotation).value());
+                            }
+                            if (annotation.annotationType().equals(InFuture.class)) {
+                                validator.params.put("reference", ((InFuture) annotation).value());
+                            }
+                            if (annotation.annotationType().equals(InPast.class)) {
+                                validator.params.put("reference", ((InPast) annotation).value());
+                            }
+                        }
+                    }
+                    break;
+                } catch (NoSuchFieldException e) {
+                    clazz = clazz.getSuperclass();
+                }
+            }
+            return validators;
+        } catch (Exception e) {
+            return new ArrayList< play.data.validation.Validation.Validator>();
+        }
+    }
+
+    static void searchValidator(Class<?> clazz, String name, Map<String, List< play.data.validation.Validation.Validator>> result) {
+        while (!clazz.equals(Object.class)) {
+            for (Field field : clazz.getDeclaredFields()) {
+
+                List< play.data.validation.Validation.Validator> validators = new ArrayList< play.data.validation.Validation.Validator>();
+                String key = name + "." + field.getName();
+                boolean containsAtValid = false;
+                for (Annotation annotation : field.getDeclaredAnnotations()) {
+                    if (annotation.annotationType().getName().startsWith("play.data.validation")) {
+                        play.data.validation.Validation.Validator validator = new play.data.validation.Validation.Validator(annotation);
+                        validators.add(validator);
+                        if (annotation.annotationType().equals(Equals.class)) {
+                            validator.params.put("equalsTo", name + "." + ((Equals) annotation).value());
+                        }
+                        if (annotation.annotationType().equals(InFuture.class)) {
+                            validator.params.put("reference", ((InFuture) annotation).value());
+                        }
+                        if (annotation.annotationType().equals(InPast.class)) {
+                            validator.params.put("reference", ((InPast) annotation).value());
+                        }
+
+                    }
+                    if (annotation.annotationType().equals(Valid.class)) {
+                        containsAtValid = true;
+                    }
+                }
+                if (!validators.isEmpty()) {
+                    result.put(key, validators);
+                }
+                if (containsAtValid) {
+                    searchValidator(field.getType(), key, result);
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }
+    }
 
 }

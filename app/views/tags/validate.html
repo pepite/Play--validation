@@ -7,47 +7,47 @@ field['flashArray'] = field['flash'] ? field['flash'].split(',') : []
 field['error'] = play.data.validation.Validation.error(_name)
 field['errorClass'] = field['error'] ? 'hasError' : ''
 }%
-<!-- <span id="${n}-error" class="bubble_html ${n} error ${_class}">${field.error}</span> -->
 <script type="text/javascript">
 
-    var submit = $("[name='${_name}']").parents("form").find("input[type='submit']");
-    submit.attr("disabled", "disabled");
+    jQuery().ready(function() {
+        var submit = jQuery("[name='${_name}']").parents("form").find("input[type='submit']");
+        submit.attr("disabled", "disabled");
 
-    // TODO: When a submit occurs, use the info from the server to display the errors
-    // Using the standard validation error template.
+        // TODO: When a submit occurs, use the info from the server to display the errors
+        // Using the standard validation error template.
 
-    var validate = function(e) {
+        var validate = function(e) {
 
-        // Get the parent form
-        var form = $("[name='${_name}']").parents("form");
-        var action = form.attr("action");
-        var method = form.attr("method");
+            // Get the parent form
+            var form = jQuery("[name='${_name}']").parents("form");
+            var action = form.attr("action");
+            var method = form.attr("method");
 
-        var v = $("input[name='${_name}']").val();
-        var validateAction = #{jsAction @Validation.validate(':formAction', ':name', ':value', ':method') /};
-        var name = "${_name}";
+            var v = $("input[name='${_name}']").val();
+            var validateAction = #{jsAction @Validation.validate(':formAction', ':name', ':value', ':method') /};
+            var name = "${_name}";
 
-        $.get(validateAction({formAction: action, value: v, name: name, method: method}), function(response) {
-            // Callback method
+            jQuery.get(validateAction({formAction: action, value: v, name: name, method: method}), function(response) {
+                // Callback method
 
-            if (response && response != 'true') {
-                // Disable the form
-                var submit = $("[name='${_name}']").parents("form").find("input[type='submit']");
-                submit.attr("disabled", "disabled");
-                $(".${n}.error").html($(".${n}.error").html().replace(/#error/i, response));
-                $(".${n}.error").show();
+                if (response && response != 'true') {
+                    // Disable the form
+                    var submit = jQuery("[name='${_name}']").parents("form").find("input[type='submit']");
+                    submit.attr("disabled", "disabled");
+                    jQuery(".${n}.error").html($(".${n}.error").html().replace(/#error/i, response));
+                    jQuery(".${n}.error").show();
 
-            }
-            else {
-                $(".${n}.error").hide();
+                }
+                else {
+                    jQuery(".${n}.error").hide();
 
-            }
+                }
 
 
-        });
-    }
-            ;
-    $("[name='${_name}']").blur(validate);
-
+            });
+        }
+                ;
+        jQuery("[name='${_name}']").blur(validate);
+    });
 
 </script>

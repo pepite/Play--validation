@@ -15,7 +15,6 @@
             if (response) {
                 var map = eval("(" + response + ")");
 
-                // For each input
                 var config = new Object();
                 config.rules = new Object();
                 config.messages = new Object();
@@ -61,13 +60,6 @@
                     event.stopImmediatePropagation();
                 });
 
-//                $("[name='${_name}'] input[type='text'],[name='${_name}'] input[type='password'],[name='${_name}'] textarea").keyup(function(event) {
-//                    var showErrorAttr = $(this).attr("name").replace(/\./i, "-");
-//                    var $showError = $("." + showErrorAttr + ".error");
-//                    $showError.hide();
-//                    var valid = $(this).valid();
-//                    event.stopImmediatePropagation();
-//                });
 
             }
         });

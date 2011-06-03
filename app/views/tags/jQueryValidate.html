@@ -1,0 +1,87 @@
+<!-- TODO: change me -->
+<script type="text/javascript" src="/public/js/libs/jquery-1.5.1.min.js"></script>
+<script type="text/javascript" src="/public/javascripts/jquery.validate.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+
+  		var validator = $('#%{ out.print _id}%').validate({
+          onkeyup : false,
+          showErrors: function(errorMap, errorList) {
+                    for (i in errorList) {
+                        var $elem = $(errorList[i].element);
+                        if ($elem.attr("name")) {
+                            // Get the matching showError element
+                            var showErrorAttr = $elem.attr("name").replace(/\./i, "-");
+                            var $showError = $("." + showErrorAttr + ".error");
+                            if (!$showError.html()) {
+                               $showError = $("<span class='error " + showErrorAttr + "'>" + errorList[i].message + "</span>" );
+                            }
+                            if ($("span." + showErrorAttr + ".error-content").length > 0 ) {
+                              $("span." + showErrorAttr + ".error-content").text(errorList[i].message);
+                            } else {
+                                $showError.html($showError.html().replace(/#error/i, "<span class='" + showErrorAttr + " error-content'>" + errorList[i].message + "</span>"));
+                            }
+                            $showError.fadeIn(200);
+                        }
+                    }
+            },
+			rules: {
+			%{
+				controllers.Validation.getValidators(_class, _key).each() {
+					out.println "'" + it.key + "': {"
+					for(validator in it.value) {
+						switch (validator.annotation.annotationType().name.substring(21)) {
+						    case "Required":
+						        out.println "required: true,"
+								break;
+							case "MinSize":
+						        out.println "minlength: " + validator.annotation.value() + ","
+								break;
+							case "Range":
+						        out.println "range: [" + validator.annotation.min() + "," + validator.annotation.max() + "],"
+								break;
+							case "Email":
+						        out.println "email: true,"
+								break;
+							case "Equals":
+						        out.println "equalTo: 'input[name=" + validator.params.equalsTo + "]',"
+								break;
+						}
+					}
+					out.println "},"
+				}
+			}%
+			},
+
+            messages:   {
+			%{
+				controllers.Validation.getValidators(_class, _key).each() {
+					out.println "'" + it.key + "': {"
+					for(validator in it.value) {
+						switch (validator.annotation.annotationType().name.substring(21)) {
+						    case "Required":
+						        out.println "required: \"" + play.i18n.Messages.get(validator.annotation.message()) + "\","
+								break;
+							case "MinSize":
+						        out.println "minlength: \"" + play.i18n.Messages.get(validator.annotation.message()) + "\","
+								break;
+							case "Range":
+						        out.println "range: \"" + play.i18n.Messages.get(validator.annotation.message()) + "\","
+								break;
+							case "Email":
+						        out.println "email: \"" + play.i18n.Messages.get(validator.annotation.message()) + "\","
+								break;
+							case "Equals":
+						        out.println "equalTo: \""  + play.i18n.Messages.get(validator.annotation.message()) + "\","
+								break;
+						}
+					}
+					out.println "},"
+				}
+			}%
+			}
+            }) ;
+
+	});
+</script>

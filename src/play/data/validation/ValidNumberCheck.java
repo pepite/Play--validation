@@ -5,13 +5,13 @@ import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
 import net.sf.oval.context.OValContext;
 
 @SuppressWarnings("serial")
-public class NumberCheck extends AbstractAnnotationCheck<Number> {
+public class ValidNumberCheck extends AbstractAnnotationCheck<ValidNumber> {
 
     final static String mes = "validation.number";
 
     @Override
-    public void configure(Number email) {
-        setMessage(email.message());
+    public void configure(ValidNumber number) {
+        setMessage(number.message());
     }
 
     public boolean isSatisfied(Object validatedObject, Object value, OValContext context, Validator validator) {

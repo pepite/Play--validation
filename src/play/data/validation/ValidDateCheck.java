@@ -10,20 +10,19 @@ import play.i18n.Lang;
 import play.libs.I18N;
 import play.mvc.Scope;
 
-import java.lang.annotation.Annotation;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @SuppressWarnings("serial")
-public class DateCheck extends AbstractAnnotationCheck<Date> {
+public class ValidDateCheck extends AbstractAnnotationCheck<ValidDate> {
 
     final static String mes = "validation.date";
     String[] values;
     String[] langs;
 
     @Override
-    public void configure(Date date) {
+    public void configure(ValidDate date) {
         setMessage(date.message());
         this.values = date.value();
         this.langs = date.lang();
